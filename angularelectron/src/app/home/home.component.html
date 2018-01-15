@@ -1,0 +1,61 @@
+<form  [formGroup] ="form">
+<div class="i-field-container">
+	<div class="small-container"></div>
+	<div class="small-container">
+		<div class="input-div-small">
+			<label>DineIn:</label>
+			<input type="radio" name="type" value="1" formControlName="type">
+		</div>
+		<div class="input-div-small">
+			<label>Takeaway:</label>
+			<input type="radio" name="type" value="2" formControlName="type">
+		</div>
+		<div class="input-div-small">
+			<label>Delivery:</label>
+			<input type="radio" name="type" value="3" formControlName="type">
+		</div>
+		<div class="input-div-medium">
+			<label>TableNo:</label>
+			<input appFocusNext type="text" name="table_no" class="input-adj" value="3" formControlName="table_no">
+		</div>
+	</div>
+	<div class="small-container">
+		<div class="input-div-medium">
+			<input appFocus type="text" name="mobile" class="input" placeholder="Mobile" formControlName="mobile">
+		</div>
+		<div class="input-div-medium">
+			<input appFocusNext type="text" name="name" class="input" placeholder="Name" formControlName="name">
+		</div>
+	</div>
+	<div class="small-container">
+		<div class="input-div-large">
+			<input appFocus type="text" name="address" class="input" placeholder="Address" formControlName="address">
+		</div>
+		<div class="input-div-large">
+			<input appFocusNext type="text" name="address2" class="input" placeholder="Address2" formControlName="address2">
+		</div>
+	</div>
+	<div class="small-container">
+		<div class="input-div-large">
+			<input appFocus type="text" name="item" class="input" placeholder="Items" autofocus="true" formControlName="item">
+		</div>
+		<div class="input-div-medium">
+			<input appFocus type="text" name="comment" class="input" placeholder="Special Comment" formControlName="comment">
+		</div>
+		<div class="input-div-small">
+			<input appFocus type="text" name="quantity" class="input" placeholder="Quantity" formControlName="quantity">
+		</div>
+		<div class="input-div-small">
+			<input appFocus type="text" name="price" class="input" placeholder="Price" formControlName="price">
+		</div>
+		<div class="input-div-small">
+			<input type="text" name="total_price" class="input" (keydown)="onSubmit(form.value,$event)" placeholder="Total Price" formControlName="total_price">
+    </div>
+	</div>
+</div>
+</form>
+<div class="i-field-container">
+	<table class="i-table">
+		<th>Item</th><th>Comment</th><th>Quantity</th><th>Price</th><th>TotalPrice</th>
+	</table>
+</div>
