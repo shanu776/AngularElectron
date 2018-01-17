@@ -1,7 +1,13 @@
-const {app, BrowserWindow, Menu} = require('electron')
+const {app, BrowserWindow, Menu, ipcMain} = require('electron')
 const path = require('path')
 const url = require('url')
 
+var knex = require("knex")({
+	client: "sqlite3",
+	connection: {
+		filename: "./database.sqlite"
+	}
+});
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let win
@@ -27,6 +33,13 @@ function createWindow () {
     // when you should delete the corresponding element.
     win = null
   })
+
+  ipcMain.on("mainWindowLoaded", function(event){
+		let result = knex.select("FirstName").from("User")
+		result.then(function(rows){
+			event.sender.send("resultSent", rows);
+		})
+	});
 }
 
 
