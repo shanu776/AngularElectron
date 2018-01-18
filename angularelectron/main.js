@@ -23,6 +23,8 @@ function createWindow () {
     slashes: true
   }))
 
+  win.setMenu(null);
+  win.webContents.openDevTools();
   // Open the DevTools.
   // win.webContents.openDevTools()
 
@@ -37,8 +39,8 @@ function createWindow () {
   ipcMain.on("mainWindowLoaded", function(event){
 		let result = knex.select("FirstName").from("User")
 		result.then(function(rows){
-			event.sender.send("resultSent", rows);
-		})
+      event.returnValue = rows;
+    })
 	});
 }
 
