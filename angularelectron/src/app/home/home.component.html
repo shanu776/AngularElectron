@@ -4,19 +4,19 @@
 	<div class="small-container">
 		<div class="input-div-small">
 			<label>DineIn:</label>
-			<input type="radio" name="type" value="1" formControlName="type">
+			<input type="radio" name="type" value="1" (click)="dineInSelect($event)" formControlName="type">
 		</div>
 		<div class="input-div-small">
 			<label>Takeaway:</label>
-			<input type="radio" name="type" value="2" formControlName="type">
+			<input type="radio" name="type" value="2" (click)="takeawaySelect($event)" formControlName="type">
 		</div>
 		<div class="input-div-small">
 			<label>Delivery:</label>
-			<input type="radio" name="type" value="3" formControlName="type">
+			<input type="radio" name="type" value="3" (click)="deliverySelect($event)" formControlName="type">
 		</div>
 		<div class="input-div-medium">
 			<label>TableNo:</label>
-			<input appFocusNext type="text" name="table_no" class="input-adj" value="3" formControlName="table_no">
+			<input #table type="text" name="table_no" class="input-adj" ng-required="true" (keypress)="tableSelect($event)" formControlName="table_no">
 		</div>
 	</div>
 	<div class="small-container">
@@ -32,12 +32,12 @@
 			<input appFocus type="text" name="address" class="input" placeholder="Address" formControlName="address">
 		</div>
 		<div class="input-div-large">
-			<input appFocusNext type="text" name="address2" class="input" placeholder="Address2" formControlName="address2">
+			<input appFocusNext #item type="text" name="address2" class="input" placeholder="Address2" formControlName="address2">
 		</div>
 	</div>
 	<div class="small-container">
 		<div class="input-div-large">
-			<input appFocus type="text" name="item" class="input" placeholder="Items" autofocus="true" formControlName="item">
+			<input appFocus type="text" name="item" class="input" placeholder="Items" formControlName="item">
 		</div>
 		<div class="input-div-medium">
 			<input appFocus type="text" name="comment" class="input" placeholder="Special Comment" formControlName="comment">
