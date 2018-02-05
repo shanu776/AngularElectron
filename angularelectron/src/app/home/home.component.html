@@ -1,4 +1,5 @@
 <form  [formGroup] ="form">
+<!-- <input type="hidden" name="id" formControlName="id"> -->
 <div class="i-field-container">
 	<div class="small-container"></div>
 	<div class="small-container">
@@ -16,7 +17,7 @@
 		</div>
 		<div class="input-div-medium">
 			<label>TableNo:</label>
-			<input #table type="text" name="table_no" class="input-adj" ng-required="true" (keypress)="tableSelect($event)" formControlName="table_no">
+			<input #table type="text" name="table_no" class="input-adj" (keypress)="tableSelected($event)" formControlName="table_no">
 		</div>
 	</div>
 	<div class="small-container">
@@ -37,7 +38,18 @@
 	</div>
 	<div class="small-container">
 		<div class="input-div-large">
-			<input appFocus type="text" name="item" class="input" placeholder="Items" formControlName="item">
+			<input #itemFocus ngui-auto-complete
+					(keypress) = "changeFoTOPrice($event)"
+					class="input" name="item" type="text"
+					formControlName="item"
+					[source]="initProduct"
+					[list-formatter]="autocompleListFormatter"
+					value-property-name="id"
+					display-property-name="name"
+					max-num-list="10"
+					placeholder="Items"
+					auto-select-first-item="true"
+					class="form-control">
 		</div>
 		<div class="input-div-medium">
 			<input appFocus type="text" name="comment" class="input" placeholder="Special Comment" formControlName="comment">
@@ -49,13 +61,20 @@
 			<input appFocus type="text" name="price" class="input" placeholder="Price" formControlName="price">
 		</div>
 		<div class="input-div-small">
-			<input type="text" name="total_price" class="input" (keydown)="onSubmit(form.value,$event)" placeholder="Total Price" formControlName="total_price">
-    </div>
+			<input type="text" name="total_price" class="input" placeholder="Total Price" (keydown)="onSubmit(form.value,$event)" formControlName="total_price">
+    	</div>
 	</div>
 </div>
 </form>
 <div class="i-field-container">
 	<table class="i-table">
-		<th>Item</th><th>Comment</th><th>Quantity</th><th>Price</th><th>TotalPrice</th>
+	<tr>
+		<th align="left">Item</th><th align="left">Comment</th><th align="right">Quantity</th>
+		<th align="right">Price</th><th align="right">TotalPrice</th><th align="right">del</th>
+	</tr>
+	<tr *ngFor="let o of order">
+		<td align="left">{{o.item}}</td><td align="left">{{o.comment}}</td><td align="right">{{o.quantity}}</td>
+		<td align="right">{{o.price}}</td><td align="right">{{o.total_price}}</td><td align="right"><a (click)="deleteData(o.id,o.table_no)">x</a></td>
+	</tr>
 	</table>
 </div>

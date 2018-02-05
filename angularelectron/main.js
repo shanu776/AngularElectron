@@ -1,12 +1,6 @@
 const {app, BrowserWindow, Menu, ipcMain,dialog} = require('electron')
 const path = require('path')
 const url = require('url')
-// var Sequelize = require('sequelize');
-
-// var sequelize = new Sequelize('mainDB', null, null, {
-//     dialect: "sqlite",
-//     storage: './database.sqlite',
-// });
 
 var knex = require("knex")({
 	client: "sqlite3",
@@ -20,7 +14,7 @@ let win
 
 function createWindow () {
   // Create the browser window.
-  win = new BrowserWindow({frame:true,width: 1366, height: 768})
+  win = new BrowserWindow({frame:false,width: 1366, height: 768})
 
   // and load the index.html of the app.
   win.loadURL(url.format({
@@ -42,22 +36,7 @@ function createWindow () {
     win = null
   })
 
-  ipcMain.on("saveOrder",function(event,table_order){
-    knex.insert(table_order).into("table_order")
-    .on('query-error', function(error, obj){
-      dialog.showMessageBox(error);
-    })
-    .then(function (id) {
-      event.returnValue = "data inserted and id = "+id;
-    })
-  });
-
-  ipcMain.on("mainWindowLoaded", function(event){
-		let result = knex.select("FirstName").from("User")
-		result.then(function(rows){
-      event.returnValue = rows;
-    })
-	});
+ 
 }
 
 
@@ -85,3 +64,76 @@ app.on('activate', () => {
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.
+
+ /* ***************
+  ****DAtabase related Code
+  ******************8 */
+// code related to current table orders
+ipcMain.on("saveOrder",function(event,table_order){
+  knex.insert(table_order).into("table_order")
+  .on('query-error', function(error, obj){
+    dialog.showMessageBox(error);
+  })
+  .then(function (id) {
+    event.returnValue = "data inserted and id = "+id;
+  })
+});
+
+ipcMain.on("getOrderAccTable",function(event,table_no){
+  knex.from('table_order').select().where('table_no', '=', table_no)
+  .on('query-error', function(error, obj){
+    dialog.showMessageBox(error);
+  })
+  .then(function (data) {
+    event.returnValue = data;
+  })
+});
+
+ipcMain.on("getAnotherOrder",function(event){
+  knex.from('table_order').select().where('table_no', '=', '')
+  .on('query-error', function(error, obj){
+    dialog.showMessageBox(error);
+  })
+  .then(function (data) {
+    event.returnValue = data;
+  })
+});
+
+ipcMain.on("deleteCurrentTableOrder",function(event,id){
+  knex('table_order').where('id',id).del()
+  .on('query-error', function(error, obj){
+    dialog.showMessageBox(error);
+  })
+  .then(function (data) {
+    event.returnValue = "Delete "+data;
+  })
+});
+
+ipcMain.on("mainWindowLoaded", function(event){
+  let result = knex.select("FirstName").from("User")
+  result.then(function(rows){
+    event.returnValue = rows;
+  })
+});
+
+//Code Related To Product Table
+
+ipcMain.on("addProduct",function(event,product){
+  knex.insert(product).into("product")
+  .on('query-error', function(error, obj){
+    dialog.showMessageBox(error);
+  })
+  .then(function (id) {
+    event.returnValue = "data inserted and id = "+id;
+  })
+});
+
+ipcMain.on("searchProduct",function(event,keyword){
+  knex.from('product').select()
+  .on('query-error', function(error, obj){
+    dialog.showMessageBox(error);
+  })
+  .then(function (data) {
+    event.returnValue = data;
+  })
+});

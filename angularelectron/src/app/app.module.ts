@@ -3,11 +3,14 @@ import { NgModule } from '@angular/core';
 import { RouterModule } from "@angular/router";
 import { ReactiveFormsModule } from "@angular/forms";
 import { NgxElectronModule } from 'ngx-electron';
+import { Ng2AutoCompleteModule} from 'ng2-auto-complete'
+import { NguiAutoCompleteModule } from '@ngui/auto-complete'
 
 import { AppComponent } from './app.component';
 import { HomeComponent } from './home/home.component';
 import { ConfigurationComponent } from './configuration/configuration.component';
 import { FocusDirective, FocusNextDirective } from './focus.directive';
+import { ProductComponent } from './product/product.component';
 
 
 @NgModule({
@@ -16,15 +19,20 @@ import { FocusDirective, FocusNextDirective } from './focus.directive';
     HomeComponent,
     ConfigurationComponent,
     FocusDirective,
-    FocusNextDirective
+    FocusNextDirective,
+    ProductComponent
   ],
   imports: [
     BrowserModule,
     ReactiveFormsModule,
     NgxElectronModule,
+    Ng2AutoCompleteModule,
+    NguiAutoCompleteModule,
     RouterModule.forRoot([
-      {path:"",component:HomeComponent},
-      { path:"configuration",component:ConfigurationComponent}
+      {path:"",redirectTo:"/home",pathMatch:"full"},
+      { path:"home",component:HomeComponent},
+      { path:"configuration",component:ConfigurationComponent},
+      { path:"product",component:ProductComponent}
     ])
   ],
   providers: [],
