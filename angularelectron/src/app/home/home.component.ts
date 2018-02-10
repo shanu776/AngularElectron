@@ -1,5 +1,6 @@
 import { element } from 'protractor';
 import { ElectronService } from 'ngx-electron';
+import { ActivatedRoute } from '@angular/router';
 import { DomSanitizer,SafeHtml } from '@angular/platform-browser'
 import { Component, OnInit, ViewChild, ElementRef, Renderer,Input } from '@angular/core';
 import { FormGroup, FormControl, Validators, FormBuilder, NgModel, NgForm } from '@angular/forms';
@@ -12,7 +13,7 @@ import { NgAutocompleteComponent, CreateNewAutocompleteGroup, SelectedAutocomple
 })
 export class HomeComponent implements OnInit {
 
-  constructor(private builder: FormBuilder, private _sanitizer: DomSanitizer,
+  constructor(private builder: FormBuilder, private _sanitizer: DomSanitizer,private route_perem:ActivatedRoute,
     private _electronService:ElectronService,private element:ElementRef,private renderer:Renderer) {}
  
   form;
@@ -20,8 +21,12 @@ export class HomeComponent implements OnInit {
   initProduct = [];
   item_id:number;
 
+  /* =======================================DomElements================================================= */
+  @ViewChild('table') tableER:ElementRef
+  @ViewChild('itemFocus') itemINP:ElementRef
   @ViewChild("calculationForm")
   public cal_form:NgForm;
+
   total_quantity:number=0;
   gtotla_price:number=0;
   discount_per:number=0;
@@ -47,10 +52,13 @@ export class HomeComponent implements OnInit {
       quantity:new FormControl(""),
       price:new FormControl(""),
       total_price:new FormControl("")
-    });
+    });    
+    this.prepareDataForDropDown();
     this.getCurrentOrder('');
     this.getTotalPriceAndQuantity('');
-    this.prepareDataForDropDown();
+    this.route_perem.params.subscribe(params=>{
+      
+    });
   }
   
  /* ===========================================OnSubmit Actions=============================================== */
@@ -81,9 +89,18 @@ export class HomeComponent implements OnInit {
 /* ================================================Retrive Data From Database Table =============================*/
 
   getCurrentOrder(table_no){
+    //console.log(this.dineIn.nativeElement);
     console.log(table_no);
     let data = this._electronService.ipcRenderer.sendSync('getOrderAccTable',table_no);
-    console.log(data);
+    /* if(data.length>0){
+      console.log(data[data.length-1].type);
+      this.form.get('type').setValue(data[data.length-1].type);
+      this.form.get('table_no').setValue(data[data.length-1].table_no);
+      this.form.get('mobile').setValue(data[data.length-1].mobile);
+      this.form.get('name').setValue(data[data.length-1].name);
+      this.form.get('address').setValue(data[data.length-1].address);
+      this.form.get('address2').setValue(data[data.length-1].address2);
+    } */
     this.order = data;
   }
 
@@ -99,6 +116,7 @@ export class HomeComponent implements OnInit {
     return Math.round(val);
   }
 /* ========================================Calculate final amount Events=============================================== */
+ 
   calculateDiscPer = function(value){
     this.discount_per = (this.gtotla_price * value)/100;
     /* console.log(this.gtotla_price-(this.discount_per+this.discount_rs)); */
@@ -126,6 +144,7 @@ export class HomeComponent implements OnInit {
     this.customer_paid = value;
     this.return_amount = this.customer_paid - this.total_aditional;
   }
+
 /* ========================================Events on type and table no=============================================== */
 
   dineInSelect = function(e){
@@ -188,9 +207,6 @@ export class HomeComponent implements OnInit {
   }
   }
 
-/* =======================================DomElements================================================= */
-  @ViewChild('table') tableER:ElementRef
-  @ViewChild('itemFocus') itemINP:ElementRef
 
 /* ===========================================Change Focus Acc to Type and Submition========================== */
   
@@ -250,7 +266,8 @@ autocompleListFormatter = (data: any) : SafeHtml => {
   return this._sanitizer.bypassSecurityTrustHtml(html);
 }
 
-/* autocompleListFormatter = (data)  => {
+/* 
+autocompleListFormatter = (data)  => {
   return `<span>${data.sortname +" "+ data.name}</span>`;
 }
  */

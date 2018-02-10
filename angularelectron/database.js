@@ -36,8 +36,6 @@ ipcMain.on("saveOrder",function(event,table_order){
    
   });
 
-  
-
   ipcMain.on("getOrderAccTable",function(event,table_no){
     knex.from('table_order').select().where('table_no', '=', table_no)
     .on('query-error', function(error, obj){

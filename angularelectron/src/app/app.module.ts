@@ -30,8 +30,8 @@ import { ProductComponent } from './product/product.component';
     Ng2AutoCompleteModule,
     NguiAutoCompleteModule,
     RouterModule.forRoot([
-      {path:"",redirectTo:"/home",pathMatch:"full"},
-      { path:"home",component:HomeComponent},
+      {path:"",redirectTo:"/home/",pathMatch:"full"},
+      { path:"home/:id",component:HomeComponent},
       { path:"configuration",component:ConfigurationComponent},
       { path:"product",component:ProductComponent}
     ])
