@@ -2,7 +2,7 @@ import { element } from 'protractor';
 import { ElectronService } from 'ngx-electron';
 import { DomSanitizer,SafeHtml } from '@angular/platform-browser'
 import { Component, OnInit, ViewChild, ElementRef, Renderer,Input } from '@angular/core';
-import { FormGroup, FormControl, Validators, FormBuilder,NgModel } from '@angular/forms';
+import { FormGroup, FormControl, Validators, FormBuilder, NgModel, NgForm } from '@angular/forms';
 import { NgAutocompleteComponent, CreateNewAutocompleteGroup, SelectedAutocompleteItem} from 'ng-auto-complete'
 
 @Component({
@@ -14,9 +14,25 @@ export class HomeComponent implements OnInit {
 
   constructor(private builder: FormBuilder, private _sanitizer: DomSanitizer,
     private _electronService:ElectronService,private element:ElementRef,private renderer:Renderer) {}
+ 
   form;
   order;
   initProduct = [];
+  item_id:number;
+
+  @ViewChild("calculationForm")
+  public cal_form:NgForm;
+  total_quantity:number=0;
+  gtotla_price:number=0;
+  discount_per:number=0;
+  discount_rs:number=0;
+  total_discount:number=0;
+  container_charge:number=0;
+  delivery_charge:number=0;
+  total_aditional:number=0;
+  customer_paid:number=0;
+  return_amount:number=0;
+  
   ngOnInit() {
     this.form = new FormGroup({
       type:new FormControl(""),
@@ -25,6 +41,7 @@ export class HomeComponent implements OnInit {
       name:new FormControl(""),
       address:new FormControl(""),
       address2:new FormControl(""),
+      item_id:new FormControl(""),
       item:new FormControl(""),
       comment:new FormControl(""),
       quantity:new FormControl(""),
@@ -32,13 +49,13 @@ export class HomeComponent implements OnInit {
       total_price:new FormControl("")
     });
     this.getCurrentOrder('');
+    this.getTotalPriceAndQuantity('');
     this.prepareDataForDropDown();
   }
   
  /* ===========================================OnSubmit Actions=============================================== */
 
    onSubmit = function(order,e){
-    
     let code = e.keyCode || e.which;
     console.log(this.form.valid);
     if(!this.form.valid){
@@ -50,9 +67,17 @@ export class HomeComponent implements OnInit {
      this.changeFoculeToDefault();
      this.clearDataFromDisplay(order);
      this.getCurrentOrder(order.table_no);
-    
+     this.getTotalPriceAndQuantity(order.table_no);
     }
    }
+
+/* ===========================================Delete Data Actions=============================================== */
+  deleteData = function(id,table_no){
+    let data = this._electronService.ipcRenderer.sendSync('deleteCurrentTableOrder',id);
+    console.log(data);
+    this.getCurrentOrder(table_no);
+    this.getTotalPriceAndQuantity(table_no);
+  }
 /* ================================================Retrive Data From Database Table =============================*/
 
   getCurrentOrder(table_no){
@@ -62,6 +87,45 @@ export class HomeComponent implements OnInit {
     this.order = data;
   }
 
+  getTotalPriceAndQuantity(table_no){
+    let data = this._electronService.ipcRenderer.sendSync('totalPriceNdQuantity',table_no);
+    console.log(data);
+    this.total_quantity = data[0].tquantity;
+    this.gtotla_price = data[0].gtprice;
+    this.total_discount = this.gtotla_price;
+    this.total_aditional = this.gtotla_price;
+  }
+  round(val){
+    return Math.round(val);
+  }
+/* ========================================Calculate final amount Events=============================================== */
+  calculateDiscPer = function(value){
+    this.discount_per = (this.gtotla_price * value)/100;
+    /* console.log(this.gtotla_price-(this.discount_per+this.discount_rs)); */
+    this.total_discount = this.round(this.gtotla_price-(this.discount_per+this.discount_rs));
+    this.total_aditional =  this.round(this.total_discount+this.container_charge+this.delivery_charge);
+  }
+
+  calculateDiscRs = function(value){
+    this.discount_rs = value;
+    this.total_discount =  this.round(this.gtotla_price-(this.discount_per+this.discount_rs)); 
+    this.total_aditional =  this.round(this.total_discount+this.container_charge+this.delivery_charge);
+  }
+
+  calculateContaiCharge(value){
+    this.container_charge = value;
+    this.total_aditional =  this.round(this.total_discount+this.container_charge+this.delivery_charge);
+  }
+
+  calculateDelivCharge(value){
+    this.delivery_charge = value;
+    this.total_aditional =  this.round(this.total_discount+this.container_charge+this.delivery_charge);
+  }
+
+  calculateReturn(value){
+    this.customer_paid = value;
+    this.return_amount = this.customer_paid - this.total_aditional;
+  }
 /* ========================================Events on type and table no=============================================== */
 
   dineInSelect = function(e){
@@ -91,23 +155,30 @@ export class HomeComponent implements OnInit {
     this.changeFoculeToDefault()
   }
 
-  deleteData = function(id,table_no){
-    let data = this._electronService.ipcRenderer.sendSync('deleteCurrentTableOrder',id);
-    console.log(data);
-    this.getCurrentOrder(table_no);
+  gotoItems = function(e){
+    let code = e.keyCode || e.which;
+    if(code==13)
+    this.changeFoculeToDefault()
+  }
+
+  calculatePriceAccQuant = function(quantity){
+    let price = this.form.value.price;
+    this.form.get('total_price').setValue(price*quantity);
   }
 
   changeFoTOPrice = function(e){
     let price = this.form.value.item.price;
+    console.log(this.form.value.item.id);
     let quantity = 1;
     let code = e.keyCode || e.which;
     if(code==13){
-      this.form.get('type').setValue(this.form.value.type);
+      /* this.form.get('type').setValue(this.form.value.type);
       this.form.get('mobile').setValue(this.form.value.mobile);
-      this.form.get('item').setValue(this.form.value.item.name);
       this.form.get('name').setValue(this.form.value.name);
       this.form.get('address').setValue(this.form.value.address);
-      this.form.get('address2').setValue(this.form.value.address2);
+      this.form.get('address2').setValue(this.form.value.address2); */
+      this.form.get('item_id').setValue(this.form.value.item.id);
+      this.form.get('item').setValue(this.form.value.item.name);
       this.form.get('comment').setValue(this.form.value.comment);
       this.form.get('quantity').setValue(quantity);
       this.form.get('price').setValue(price);
@@ -116,6 +187,7 @@ export class HomeComponent implements OnInit {
     this.itemINP.nativeElement.parentNode.parentNode.nextElementSibling.children[0].focus();
   }
   }
+
 /* =======================================DomElements================================================= */
   @ViewChild('table') tableER:ElementRef
   @ViewChild('itemFocus') itemINP:ElementRef
@@ -138,7 +210,7 @@ export class HomeComponent implements OnInit {
    }
   
    changeFoculeToDefault(){
-    this.itemINP.nativeElement.focus();
+      this.itemINP.nativeElement.focus();
    }
 /* =======================================Clear data From Display===================================== */
 
@@ -164,9 +236,9 @@ formSetupForDineIn(){
 }
 
 formSetupForOtherOrder(){
-  //this.form.get('table_no').setValue('');
-  this.form.controls.table_no.value = '';
-  this.tableER.nativeElement.value = '';
+  this.form.get('table_no').setValue('');
+  /* this.form.controls.table_no.value = '';
+  this.tableER.nativeElement.value = ''; */
   this.form.controls.table_no.status = "VALID";
 }
 
@@ -186,6 +258,7 @@ prepareDataForDropDown(){
   this.initProduct = [];
   let data = this._electronService.ipcRenderer.sendSync('searchProduct',"kk");
   data.forEach(element => {
+    this.item_id = element.id;
   this.initProduct.push({
                   'id':element.id,
                   'sortname':element.sortname,
@@ -194,6 +267,5 @@ prepareDataForDropDown(){
                   });
   });
 }
-
 
 }

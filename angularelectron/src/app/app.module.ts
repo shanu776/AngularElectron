@@ -1,7 +1,7 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { RouterModule } from "@angular/router";
-import { ReactiveFormsModule } from "@angular/forms";
+import { ReactiveFormsModule,FormsModule } from "@angular/forms";
 import { NgxElectronModule } from 'ngx-electron';
 import { Ng2AutoCompleteModule} from 'ng2-auto-complete'
 import { NguiAutoCompleteModule } from '@ngui/auto-complete'
@@ -25,6 +25,7 @@ import { ProductComponent } from './product/product.component';
   imports: [
     BrowserModule,
     ReactiveFormsModule,
+    FormsModule,
     NgxElectronModule,
     Ng2AutoCompleteModule,
     NguiAutoCompleteModule,

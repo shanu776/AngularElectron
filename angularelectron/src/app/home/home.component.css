@@ -1,3 +1,10 @@
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* -----------------------------------------styling on containers---------------------------------------- */
 .i-field-container{
 	width: 100%;
 	height: 175px;
@@ -10,6 +17,7 @@
 	height: 35px;
 }
 
+/* ----------------------------------------styling on input------------------------------------------------- */
 .input-div-small{
 	display: inline-block;
 	margin-left: 10px;
@@ -38,10 +46,24 @@
 	height: 21px;
 }
 
+/* --------------------------------------------table styling-------------------------------------------s */
 .i-table{
 	width: 100%;
+	border: 1px solid grey;
+	border-collapse: collapse;
+	padding: 5px;
 }
 
+.i-table tr:nth-child(odd) {
+	background-color: #f1f1f1;
+  }
+.i-table tr:nth-child(even) {
+	background-color: #ffffff;
+  }
+/* --------------------------------------------------------validation stylings--------------------------------------- */
 .ng-invalid{
     border-color: rgb(211, 67, 67);
 }
+
+
+  
