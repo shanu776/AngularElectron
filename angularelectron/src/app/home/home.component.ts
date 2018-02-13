@@ -1,10 +1,13 @@
 import { element } from 'protractor';
 import { ElectronService } from 'ngx-electron';
 import { ActivatedRoute } from '@angular/router';
-import { DomSanitizer,SafeHtml } from '@angular/platform-browser'
+import { DomSanitizer,SafeHtml } from '@angular/platform-browser';
 import { Component, OnInit, ViewChild, ElementRef, Renderer,Input } from '@angular/core';
 import { FormGroup, FormControl, Validators, FormBuilder, NgModel, NgForm } from '@angular/forms';
-import { NgAutocompleteComponent, CreateNewAutocompleteGroup, SelectedAutocompleteItem} from 'ng-auto-complete'
+import { NgAutocompleteComponent, CreateNewAutocompleteGroup, SelectedAutocompleteItem} from 'ng-auto-complete';
+import { HotkeysService, Hotkey } from 'angular2-hotkeys';
+import { DatePipe } from '@angular/common'
+
 
 @Component({
   selector: 'app-home',
@@ -14,7 +17,30 @@ import { NgAutocompleteComponent, CreateNewAutocompleteGroup, SelectedAutocomple
 export class HomeComponent implements OnInit {
 
   constructor(private builder: FormBuilder, private _sanitizer: DomSanitizer,private route_perem:ActivatedRoute,
-    private _electronService:ElectronService,private element:ElementRef,private renderer:Renderer) {}
+    private _electronService:ElectronService,private element:ElementRef,private strdate:DatePipe,
+    private renderer:Renderer,private _hotkey:HotkeysService) {
+      
+      this._hotkey.add(new Hotkey(['f1'], (event: KeyboardEvent, combo: string): ExtendedKeyboardEvent => {
+        console.log('Combo: ' + combo); // 'Combo: f1'
+        this.prepareDataForHistory()
+        let e: ExtendedKeyboardEvent = event;
+        e.returnValue = false; // Prevent bubbling
+        return e;
+      },['INPUT', 'SELECT', 'TEXTAREA']));
+
+      this._hotkey.add(new Hotkey(['f2'], (event: KeyboardEvent, combo: string): ExtendedKeyboardEvent => {
+        console.log('Combo: ' + combo); // 'Combo: f1'
+        let e: ExtendedKeyboardEvent = event;
+        e.returnValue = false; // Prevent bubbling
+        return e;
+      },['INPUT', 'SELECT', 'TEXTAREA']));
+      this._hotkey.add(new Hotkey(['f6'], (event: KeyboardEvent, combo: string): ExtendedKeyboardEvent => {
+        console.log('Combo: ' + combo); // 'Combo: f1'
+        let e: ExtendedKeyboardEvent = event;
+        e.returnValue = false; // Prevent bubbling
+        return e;
+      },['INPUT', 'SELECT', 'TEXTAREA']));
+    }
  
   form;
   order;
@@ -54,10 +80,10 @@ export class HomeComponent implements OnInit {
       total_price:new FormControl("")
     });    
     this.prepareDataForDropDown();
-    this.getCurrentOrder('');
-    this.getTotalPriceAndQuantity('');
+    
     this.route_perem.params.subscribe(params=>{
-      
+      this.getCurrentOrder(params.id);
+      this.getTotalPriceAndQuantity(params.id);
     });
   }
   
@@ -72,10 +98,10 @@ export class HomeComponent implements OnInit {
     if(code==13){
      e.preventDefault();
      let data = this._electronService.ipcRenderer.sendSync('saveOrder',order);
-     this.changeFoculeToDefault();
      this.clearDataFromDisplay(order);
      this.getCurrentOrder(order.table_no);
      this.getTotalPriceAndQuantity(order.table_no);
+     this.changeFoculeToDefault();
     }
    }
 
@@ -89,24 +115,32 @@ export class HomeComponent implements OnInit {
 /* ================================================Retrive Data From Database Table =============================*/
 
   getCurrentOrder(table_no){
-    //console.log(this.dineIn.nativeElement);
-    console.log(table_no);
     let data = this._electronService.ipcRenderer.sendSync('getOrderAccTable',table_no);
-    /* if(data.length>0){
-      console.log(data[data.length-1].type);
-      this.form.get('type').setValue(data[data.length-1].type);
+    if(data.length>0){
+      if(data[data.length-1].type == 1){
+        this.enableTable();
+        this.changeFoculeOnTable();
+        this.form.removeControl('table_no');
+        this.form.addControl('table_no',new FormControl("",Validators.required));
+      }else{
+        this.focusOnDetails();
+        this.disableTable();
+        this.form.removeControl('table_no');
+        this.form.addControl('table_no',new FormControl(""));
+      }
+      //console.log(data[data.length-1].type);
+      this.form.get('type').setValue(''+data[data.length-1].type);
       this.form.get('table_no').setValue(data[data.length-1].table_no);
       this.form.get('mobile').setValue(data[data.length-1].mobile);
       this.form.get('name').setValue(data[data.length-1].name);
       this.form.get('address').setValue(data[data.length-1].address);
       this.form.get('address2').setValue(data[data.length-1].address2);
-    } */
+    }
     this.order = data;
   }
 
   getTotalPriceAndQuantity(table_no){
     let data = this._electronService.ipcRenderer.sendSync('totalPriceNdQuantity',table_no);
-    console.log(data);
     this.total_quantity = data[0].tquantity;
     this.gtotla_price = data[0].gtprice;
     this.total_discount = this.gtotla_price;
@@ -119,7 +153,6 @@ export class HomeComponent implements OnInit {
  
   calculateDiscPer = function(value){
     this.discount_per = (this.gtotla_price * value)/100;
-    /* console.log(this.gtotla_price-(this.discount_per+this.discount_rs)); */
     this.total_discount = this.round(this.gtotla_price-(this.discount_per+this.discount_rs));
     this.total_aditional =  this.round(this.total_discount+this.container_charge+this.delivery_charge);
   }
@@ -154,15 +187,8 @@ export class HomeComponent implements OnInit {
     this.formSetupForDineIn();
   }
 
-  takeawaySelect = function(e){
+  otherSelect = function(e){
     console.log(this.form);
-    this.focusOnDetails();
-    this.disableTable();
-    this.formSetupForOtherOrder();
-  }
-
-  deliverySelect = function(e){
-    console.log(this.form.value);
     this.focusOnDetails();
     this.disableTable();
     this.formSetupForOtherOrder();
@@ -191,11 +217,6 @@ export class HomeComponent implements OnInit {
     let quantity = 1;
     let code = e.keyCode || e.which;
     if(code==13){
-      /* this.form.get('type').setValue(this.form.value.type);
-      this.form.get('mobile').setValue(this.form.value.mobile);
-      this.form.get('name').setValue(this.form.value.name);
-      this.form.get('address').setValue(this.form.value.address);
-      this.form.get('address2').setValue(this.form.value.address2); */
       this.form.get('item_id').setValue(this.form.value.item.id);
       this.form.get('item').setValue(this.form.value.item.name);
       this.form.get('comment').setValue(this.form.value.comment);
@@ -253,9 +274,13 @@ formSetupForDineIn(){
 
 formSetupForOtherOrder(){
   this.form.get('table_no').setValue('');
-  /* this.form.controls.table_no.value = '';
-  this.tableER.nativeElement.value = ''; */
   this.form.controls.table_no.status = "VALID";
+  this.form.get('mobile').setValue("");
+  this.form.get('name').setValue("");
+  this.form.get('address').setValue("");
+  this.form.get('address2').setValue("");
+ /*  let data = this._electronService.ipcRenderer.sendSync('eraseOrder','');
+  console.log(data); */
 }
 
 
@@ -283,6 +308,35 @@ prepareDataForDropDown(){
                   'price':element.price
                   });
   });
+}
+
+/* =======================================================OrderHistoryRelated======================================================= */
+history_data;
+prepareDataForHistory(){
+this.history_data = {
+  "date": this.strdate.transform(new Date(),'dd-MM-yyyy'),
+  "cgst":"",
+  "sgst":"",
+  "table_no":this.form.get('table_no').value,
+  "type":this.form.get('type').value,
+  "total_quantity":this.total_quantity,
+  "name":this.form.get('name').value,
+  "address":this.form.get('address').value,
+  "address1":this.form.get('address2').value,
+  "mobile":this.form.get('mobile').value,
+  "gtotal_price":this.gtotla_price,
+  "discount_per":this.discount_per,
+  "discount_rs":this.discount_rs,
+  "container_charge":this.container_charge,
+  "delivery_charge":this.delivery_charge,
+  "customer_paid":this.customer_paid,
+  "return_amount":this.return_amount
+}
+
+let id = this._electronService.ipcRenderer.sendSync('addOrderHistory',this.history_data);
+console.log(id);
+this.form.reset()
+this.cal_form.reset();
 }
 
 }

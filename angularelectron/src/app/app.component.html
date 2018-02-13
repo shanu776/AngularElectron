@@ -1,10 +1,17 @@
 <div class="menu">
   <ul>
+    <li routerLink="/">Default</li>
     <li routerLink="/home/1">Home</li>
     <li routerLink="/product">Product</li>
     <li routerLink="/configuration">Configuration</li>
-    
   </ul>
+  <div style="width:300px;">
+    <ngx-datatable
+          [rows]="rows"
+          [columns]="columns">
+    </ngx-datatable>
+  </div>
+  <!-- {{data |json}} -->
 </div>
 <div class="main">
   <router-outlet></router-outlet>

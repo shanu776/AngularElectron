@@ -5,12 +5,15 @@ import { ReactiveFormsModule,FormsModule } from "@angular/forms";
 import { NgxElectronModule } from 'ngx-electron';
 import { Ng2AutoCompleteModule} from 'ng2-auto-complete'
 import { NguiAutoCompleteModule } from '@ngui/auto-complete'
+import { HotkeyModule } from 'angular2-hotkeys'
+import { NgxDatatableModule } from '@swimlane/ngx-datatable'
 
 import { AppComponent } from './app.component';
 import { HomeComponent } from './home/home.component';
 import { ConfigurationComponent } from './configuration/configuration.component';
 import { FocusDirective, FocusNextDirective } from './focus.directive';
 import { ProductComponent } from './product/product.component';
+import { DatePipe } from '@angular/common';
 
 
 @NgModule({
@@ -29,6 +32,8 @@ import { ProductComponent } from './product/product.component';
     NgxElectronModule,
     Ng2AutoCompleteModule,
     NguiAutoCompleteModule,
+    NgxDatatableModule,
+    HotkeyModule.forRoot(),
     RouterModule.forRoot([
       {path:"",redirectTo:"/home/",pathMatch:"full"},
       { path:"home/:id",component:HomeComponent},
@@ -36,7 +41,7 @@ import { ProductComponent } from './product/product.component';
       { path:"product",component:ProductComponent}
     ])
   ],
-  providers: [],
+  providers: [DatePipe],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

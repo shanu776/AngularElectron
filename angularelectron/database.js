@@ -46,6 +46,16 @@ ipcMain.on("saveOrder",function(event,table_order){
     })
   });
 
+  ipcMain.on("getRunningTables",function(event){
+    knex.select('table_no as table', knex.raw('SUM(total_price) as total')).from('table_order').where('table_no', '!=', '').groupByRaw('table_no')
+    .on('query-error', function(error, obj){
+      dialog.showMessageBox(error);
+    })
+    .then(function (data) {
+      event.returnValue = data;
+    });
+  });
+
 
   ipcMain.on("getAnotherOrder",function(event){           //which is not table order
     knex.from('table_order').select().where('table_no', '=', '')
@@ -65,9 +75,18 @@ ipcMain.on("saveOrder",function(event,table_order){
     })
     .then(function (data) {
       event.returnValue = "Delete "+data;
-    })
+    });
   });
 
+  ipcMain.on("eraseOrder",function(event,table_no){
+    knex('table_order').where('table_no',table_no).del()
+    .on('query-error', function(error, obj){
+      dialog.showMessageBox(error);
+    })
+    .then(function (data) {
+      event.returnValue = "Delete "+data;
+    });
+  });
  
   ipcMain.on("mainWindowLoaded", function(event){
     let result = knex.select("FirstName").from("User")
@@ -107,4 +126,14 @@ ipcMain.on("totalPriceNdQuantity",function(event,table_no){
     .then(function (data) {
       event.returnValue = data;
     })
+});
+
+ipcMain.on("addOrderHistory",function(event,history_data){
+  knex.insert(history_data).into("order_history")
+  .on('query-error', function(error, obj){
+    dialog.showMessageBox(error);
+  })
+  .then(function (id) {
+    event.returnValue = id;
+  })
 })

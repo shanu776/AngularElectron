@@ -9,11 +9,11 @@
 		</div>
 		<div class="input-div-small">
 			<label>Takeaway:</label>
-			<input type="radio" name="type" value="2" (click)="takeawaySelect($event)" formControlName="type">
+			<input type="radio" name="type" value="2" (click)="otherSelect($event)" formControlName="type">
 		</div>
 		<div class="input-div-small">
 			<label>Delivery:</label>
-			<input type="radio" name="type" value="3" (click)="deliverySelect($event)" formControlName="type">
+			<input type="radio" name="type" value="3" (click)="otherSelect($event)" formControlName="type">
 		</div>
 		<div class="input-div-medium">
 			<label>TableNo:</label>
@@ -81,7 +81,7 @@
 		<td class="td" align="right"><a (click)="deleteData(o.id,o.table_no)">x</a></td>
 	</tr>
 	</table>
-	{{form.value |json}}
+	<!-- {{form.value |json}} -->
 </div>
 <div class="i-field-container">
 	<form #calculationForm="ngForm">
