@@ -85,9 +85,6 @@ export class HomeComponent implements OnInit {
       this.getCurrentOrder(params.id);
       this.getTotalPriceAndQuantity(params.id);
     });
-
-    let data = this._electronService.ipcRenderer.sendSync('getOrderHistoryById',36);
-    console.log(data);
   }
   
  /* ===========================================OnSubmit Actions=============================================== */
@@ -119,14 +116,13 @@ export class HomeComponent implements OnInit {
 
   getCurrentOrder(table_no){
     let data = this._electronService.ipcRenderer.sendSync('getOrderAccTable',table_no);
-        
     if(data.length>0){
       if(data[data.length-1].type == 1){
         this.enableTable();
         this.changeFoculeOnTable();
         this.form.removeControl('table_no');
         this.form.addControl('table_no',new FormControl("",Validators.required));
-      }else{        
+      }else{
         this.focusOnDetails();
         this.disableTable();
         this.form.removeControl('table_no');
@@ -139,12 +135,6 @@ export class HomeComponent implements OnInit {
       this.form.get('name').setValue(data[data.length-1].name);
       this.form.get('address').setValue(data[data.length-1].address);
       this.form.get('address2').setValue(data[data.length-1].address2);
-    }
-    else{
-      this.form.reset();
-      this.cal_form.reset();
-      this.form.removeControl('table_no');
-      this.form.addControl('table_no',new FormControl(""));
     }
     this.order = data;
   }
@@ -161,26 +151,24 @@ export class HomeComponent implements OnInit {
   }
 /* ========================================Calculate final amount Events=============================================== */
  
-  calculateDiscPer = function(value:number){
+  calculateDiscPer = function(value){
     this.discount_per = (this.gtotla_price * value)/100;
     this.total_discount = this.round(this.gtotla_price-(this.discount_per+this.discount_rs));
     this.total_aditional =  this.round(this.total_discount+this.container_charge+this.delivery_charge);
   }
 
-  calculateDiscRs = function(value:number){
+  calculateDiscRs = function(value){
     this.discount_rs = value;
     this.total_discount =  this.round(this.gtotla_price-(this.discount_per+this.discount_rs)); 
     this.total_aditional =  this.round(this.total_discount+this.container_charge+this.delivery_charge);
   }
 
   calculateContaiCharge(value){
-    if(value != ''){
     this.container_charge = value;
     this.total_aditional =  this.round(this.total_discount+this.container_charge+this.delivery_charge);
-    }
   }
 
-  calculateDelivCharge(value:number){
+  calculateDelivCharge(value){
     this.delivery_charge = value;
     this.total_aditional =  this.round(this.total_discount+this.container_charge+this.delivery_charge);
   }
@@ -303,6 +291,11 @@ autocompleListFormatter = (data: any) : SafeHtml => {
   return this._sanitizer.bypassSecurityTrustHtml(html);
 }
 
+/* 
+autocompleListFormatter = (data)  => {
+  return `<span>${data.sortname +" "+ data.name}</span>`;
+}
+ */
 prepareDataForDropDown(){
   this.initProduct = [];
   let data = this._electronService.ipcRenderer.sendSync('searchProduct',"kk");
@@ -342,9 +335,8 @@ this.history_data = {
 
 let id = this._electronService.ipcRenderer.sendSync('addOrderHistory',this.history_data);
 console.log(id);
-this.form.reset();
+this.form.reset()
 this.cal_form.reset();
-this.order = [];
 }
 
 }

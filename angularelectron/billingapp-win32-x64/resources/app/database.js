@@ -116,94 +116,24 @@ ipcMain.on("saveOrder",function(event,table_order){
     .then(function (data) {
       event.returnValue = data;
     });
-  });
+});
 
-  ipcMain.on("totalPriceNdQuantity",function(event,table_no){
-    knex('table_order').sum('quantity as tquantity').sum('total_price as gtprice').where('table_no', '=', table_no)
-      .on('query-error', function(error, obj){
-        dialog.showMessageBox(error);
-      })
-      .then(function (data) {
-        event.returnValue = data;
-      })
-  });
-
-  ipcMain.on("addOrderHistory",function(event,history_data){
-    console.log(history_data.table_no);
-    knex.insert(history_data).into("order_history")
+ipcMain.on("totalPriceNdQuantity",function(event,table_no){
+  knex('table_order').sum('quantity as tquantity').sum('total_price as gtprice').where('table_no', '=', table_no)
     .on('query-error', function(error, obj){
       dialog.showMessageBox(error);
     })
-    .then(function (id) {
-      knex.from('table_order').select().where('table_no', '=', history_data.table_no)
-      .then(function(data){
-          let user_detail = prepareUserDetail(data[(data.length)-1]);
-          data.forEach(el => {
-              let item = prepareItemFk(el,id[0]);
-              knex.insert(item).into("item_fk")
-              .then(function(data){
-              });
-          });
-          knex('table_order').where('table_no',history_data.table_no).del()
-          .then(function (data) {
-            event.returnValue = "Done... "+data;
-          });
-         
-          if(history_data.table_no == ''){
-          knex.from('user_detail').select().where('mobile', '=', user_detail.mobile)
-          .then(function(data){
-              if(data.length>0){
-                knex('user_detail').where('id', '=', data[0].id).update({
-                  'name':user_detail.name,
-                  'address':user_detail.address,
-                  'address1':user_detail.address1
-                }).then(function(data){});
-              }
-              else{
-                knex.insert(user_detail).into("user_detail").then(function(data){console.log(data)});
-              }
-          });
-        }
-      });
-    });
-  });
-
-  ipcMain.on("updateKotStatus",function(event,orderId,kot){
-    knex('order_history').where('id', '=', orderId).update('kot', kot)
-    .on('query-error',function(error,obj){
-      dialog.showMessageBox(error);
-    })
-    .then(function(data){
+    .then(function (data) {
       event.returnValue = data;
-    });
-  });
+    })
+});
 
-  /* ipcMain.on("getOrderHistoryById",function(event,id){
-    knex.from('order_history').select().where('id','=',36)
-    .then(function(data){
-      knex.from('item_fk').select().where('order_history_id',data[0].id)
-      .then(function(itemData){
-         event.returnValue = [data,itemData];
-      });
-    });
-  }); */
-  /* ===================================================Prepare JSON Object============================================ */
-
-  function prepareItemFk(el,id){
-    return item = {
-      'name':el.item,
-      'price':el.price,
-      'total_price':el.total_price,
-      'quantity':el.quantity,
-      'order_history_id':id
-    };
-  }
-
-  function prepareUserDetail(data){
-    return user = {
-      'name':data.name,
-      'address':data.address,
-      'address1':data.address2,
-      'mobile':data.mobile
-    };
-  }
+ipcMain.on("addOrderHistory",function(event,history_data){
+  knex.insert(history_data).into("order_history")
+  .on('query-error', function(error, obj){
+    dialog.showMessageBox(error);
+  })
+  .then(function (id) {
+    event.returnValue = id;
+  })
+})

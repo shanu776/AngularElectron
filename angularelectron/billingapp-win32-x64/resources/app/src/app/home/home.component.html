@@ -48,7 +48,7 @@
 					value-property-name="id"
 					display-property-name="name"
 					max-num-list="10"
-					placeholder="Items"		
+					placeholder="Items"				
 					auto-select-first-item="true"
 					class="form-control">
 		</div>
@@ -56,7 +56,7 @@
 			<input appFocus type="text" name="comment" class="input" placeholder="Special Comment" formControlName="comment">
 		</div>
 		<div class="input-div-small">
-			<input appFocus type="text" name="quantity" class="input" placeholder="Quantity" (focus)="$event.target.select()" (keyup)="calculatePriceAccQuant(form.value.quantity)" formControlName="quantity">
+			<input appFocus type="text" name="quantity" class="input" placeholder="Quantity" (keyup)="calculatePriceAccQuant(form.value.quantity)" formControlName="quantity">
 		</div>
 		<div class="input-div-small">
 			<input appFocus type="text" name="price" class="input" placeholder="Price" formControlName="price">

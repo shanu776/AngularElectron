@@ -1,15 +1,19 @@
 <div class="menu">
   <ul>
-    <li routerLink="/">Default</li>
-    <li routerLink="/home/1">Home</li>
+    <li routerLink="/">Home</li>
     <li routerLink="/product">Product</li>
     <li routerLink="/configuration">Configuration</li>
   </ul>
-  <div style="width:300px;">
-    <ngx-datatable
-          [rows]="rows"
-          [columns]="columns">
-    </ngx-datatable>
+  <div>
+    <table class="i-table">
+      <tr>
+        <th class="th" align="center">TableNo</th><th class="th" align="center">Total</th>
+        
+      </tr>
+      <tr *ngFor="let d of data" routerLink="/home/{{d.table}}">
+        <td class="td" align="center">{{d.table}}</td><td class="td" align="center">{{d.total}}</td>
+      </tr>
+      </table>
   </div>
   <!-- {{data |json}} -->
 </div>

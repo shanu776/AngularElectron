@@ -10,8 +10,24 @@ export class AppComponent {
   constructor(private _electronService:ElectronService){
     setInterval(() => {
       this.data = this._electronService.ipcRenderer.sendSync("getRunningTables");
+      this.rows = [];
+      this.data.forEach(el => {
+        this.rows.push({table:el.table,total:el.total,company:'comp'});
+      });
       }, 1000);
    
   }
 
+  //rows = this.data;
+  
+  rows = [
+    /* { table: 'one', total: 'Male', company: 'Swimlane' },
+    { table: 'two', total: 'Male', company: 'KFC' },
+    { table: 'three', total: 'Female', company: 'Burger King' }, */
+  ];
+  columns = [
+    { name: 'Table' },
+    { name: 'Total' },
+    { name: 'Company'}
+  ];
 }
