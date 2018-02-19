@@ -29,13 +29,14 @@ export class HomeComponent implements OnInit {
       },['INPUT', 'SELECT', 'TEXTAREA']));
 
       this._hotkey.add(new Hotkey(['f2'], (event: KeyboardEvent, combo: string): ExtendedKeyboardEvent => {
-        console.log('Combo: ' + combo); // 'Combo: f1'
+        console.log('Combo: ' + combo); // 'Combo: f2'
         let e: ExtendedKeyboardEvent = event;
         e.returnValue = false; // Prevent bubbling
         return e;
       },['INPUT', 'SELECT', 'TEXTAREA']));
       this._hotkey.add(new Hotkey(['f6'], (event: KeyboardEvent, combo: string): ExtendedKeyboardEvent => {
-        console.log('Combo: ' + combo); // 'Combo: f1'
+        console.log('Combo: ' + combo); // 'Combo: f6'
+        this.printKot();
         let e: ExtendedKeyboardEvent = event;
         e.returnValue = false; // Prevent bubbling
         return e;
@@ -85,16 +86,16 @@ export class HomeComponent implements OnInit {
       this.getCurrentOrder(params.id);
       this.getTotalPriceAndQuantity(params.id);
     });
-
-    let data = this._electronService.ipcRenderer.sendSync('getOrderHistoryById',36);
-    console.log(data);
+        
   }
   
  /* ===========================================OnSubmit Actions=============================================== */
 
    onSubmit = function(order,e){
     let code = e.keyCode || e.which;
-    console.log(this.form.valid);
+    console.log(order);
+    order.kot = 0;
+    order.total_kot = order.quantity;
     if(!this.form.valid){
       return false;
     }
@@ -317,7 +318,7 @@ prepareDataForDropDown(){
   });
 }
 
-/* =======================================================OrderHistoryRelated======================================================= */
+/* ===========================================OrderHistory And Print Related=============================== */
 history_data;
 prepareDataForHistory(){
 this.history_data = {
@@ -347,4 +348,17 @@ this.cal_form.reset();
 this.order = [];
 }
 
+printKot(){
+  let table_no = this.form.get('table_no').value;
+  let message = this._electronService.ipcRenderer.sendSync('printKot',table_no);
+  console.log(message);
 }
+
+bypassKot(){
+  let table_no = this.form.get('table_no').value;
+  let id = this._electronService.ipcRenderer.sendSync('bypassKot',table_no);
+}
+
+
+}
+

@@ -4,17 +4,40 @@
     <li routerLink="/product">Product</li>
     <li routerLink="/configuration">Configuration</li>
   </ul>
-  <div>
-    <table class="i-table">
+  <tabs class="main-tab">
+  <tab tabTitle="Table" id="sub-tab">
+    <table class="i-table" >
       <tr>
         <th class="th" align="center">TableNo</th><th class="th" align="center">Total</th>
-        
       </tr>
       <tr *ngFor="let d of data" routerLink="/home/{{d.table}}">
         <td class="td" align="center">{{d.table}}</td><td class="td" align="center">{{d.total}}</td>
       </tr>
       </table>
-  </div>
+  </tab>
+  <tab tabTitle="Takeaway" id="sub-tab">
+    <table class="i-table">
+      <tr>
+        <th class="th" align="center">id</th><th class="th" align="center">Total</th>
+        
+      </tr>
+      <tr *ngFor="let t of takeawayData">
+        <td class="td" align="center">{{t.id}}</td><td class="td" align="center">{{t.gtotal_price}}</td>
+      </tr>
+      </table>
+  </tab>
+  <tab tabTitle="Delivery" id="sub-tab">
+    <table class="i-table">
+      <tr>
+        <th class="th" align="center">id</th><th class="th" align="center">Total</th>
+        
+      </tr>
+      <tr *ngFor="let t of deliveryData">
+        <td class="td" align="center">{{t.id}}</td><td class="td" align="center">{{t.gtotal_price}}</td>
+      </tr>
+      </table>
+  </tab>
+  </tabs>
   <!-- {{data |json}} -->
 </div>
 <div class="main">

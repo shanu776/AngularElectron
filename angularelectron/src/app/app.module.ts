@@ -6,6 +6,7 @@ import { NgxElectronModule } from 'ngx-electron';
 import { Ng2AutoCompleteModule} from 'ng2-auto-complete'
 import { NguiAutoCompleteModule } from '@ngui/auto-complete'
 import { HotkeyModule } from 'angular2-hotkeys'
+import { TabModule } from 'angular-tabs-component'
 
 import { AppComponent } from './app.component';
 import { HomeComponent } from './home/home.component';
@@ -31,6 +32,7 @@ import { DatePipe } from '@angular/common';
     NgxElectronModule,
     Ng2AutoCompleteModule,
     NguiAutoCompleteModule,
+    TabModule,
     HotkeyModule.forRoot(),
     RouterModule.forRoot([
       {path:"",redirectTo:"/home/",pathMatch:"full"},

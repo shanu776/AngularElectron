@@ -23,7 +23,8 @@ ipcMain.on("saveOrder",function(event,table_order){
       else{                                       ///else update only its price and quantity
         knex("table_order").where('id','=',data[0].id).update({
           'quantity':data[0].quantity+parseInt(table_order.quantity),
-          'total_price':data[0].total_price+table_order.total_price
+          'total_price':data[0].total_price+table_order.total_price,
+          'kot':0
         })
         .on('query-error', function(error, obj){
           dialog.showMessageBox(error);
@@ -128,7 +129,7 @@ ipcMain.on("saveOrder",function(event,table_order){
       })
   });
 
-  ipcMain.on("addOrderHistory",function(event,history_data){
+  /* ipcMain.on("addOrderHistory",function(event,history_data){
     console.log(history_data.table_no);
     knex.insert(history_data).into("order_history")
     .on('query-error', function(error, obj){
@@ -166,19 +167,17 @@ ipcMain.on("saveOrder",function(event,table_order){
         }
       });
     });
-  });
+  }); */
 
-  ipcMain.on("updateKotStatus",function(event,orderId,kot){
-    knex('order_history').where('id', '=', orderId).update('kot', kot)
-    .on('query-error',function(error,obj){
-      dialog.showMessageBox(error);
-    })
+  
+  ipcMain.on("todaysOtherOrder",function(event,type){
+    knex.from('order_history').select().where('type','=',type)
     .then(function(data){
       event.returnValue = data;
     });
   });
-
-  /* ipcMain.on("getOrderHistoryById",function(event,id){
+  
+  ipcMain.on("getOrderHistoryById",function(event,id){
     knex.from('order_history').select().where('id','=',36)
     .then(function(data){
       knex.from('item_fk').select().where('order_history_id',data[0].id)
@@ -186,10 +185,10 @@ ipcMain.on("saveOrder",function(event,table_order){
          event.returnValue = [data,itemData];
       });
     });
-  }); */
+  });
   /* ===================================================Prepare JSON Object============================================ */
 
-  function prepareItemFk(el,id){
+/*   function prepareItemFk(el,id){
     return item = {
       'name':el.item,
       'price':el.price,
@@ -206,4 +205,4 @@ ipcMain.on("saveOrder",function(event,table_order){
       'address1':data.address2,
       'mobile':data.mobile
     };
-  }
+  } */

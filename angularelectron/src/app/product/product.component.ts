@@ -16,8 +16,8 @@ export class ProductComponent implements OnInit {
 constructor(private builder: FormBuilder, private _sanitizer: DomSanitizer,private _electronService:ElectronService) {  }
 
 ngOnInit() {
-  let data = this._electronService.ipcRenderer.sendSync('testPrinter');
-  console.log(data);
+ /*  let data = this._electronService.ipcRenderer.sendSync('testPrinter');
+  console.log(data); */
 }
 
  
