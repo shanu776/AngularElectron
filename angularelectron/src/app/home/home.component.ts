@@ -4,9 +4,11 @@ import { ActivatedRoute } from '@angular/router';
 import { DomSanitizer,SafeHtml } from '@angular/platform-browser';
 import { Component, OnInit, ViewChild, ElementRef, Renderer,Input } from '@angular/core';
 import { FormGroup, FormControl, Validators, FormBuilder, NgModel, NgForm } from '@angular/forms';
-import { NgAutocompleteComponent, CreateNewAutocompleteGroup, SelectedAutocompleteItem} from 'ng-auto-complete';
 import { HotkeysService, Hotkey } from 'angular2-hotkeys';
 import { DatePipe } from '@angular/common'
+import { Observable } from 'rxjs/Observable'
+import { NguiAutoCompleteComponent, NguiAutoComplete, NguiAutoCompleteDirective } from '@ngui/auto-complete';
+import 'rxjs/add/observable/of';
 
 
 @Component({
@@ -16,6 +18,7 @@ import { DatePipe } from '@angular/common'
 })
 export class HomeComponent implements OnInit {
 
+  
   constructor(private builder: FormBuilder, private _sanitizer: DomSanitizer,private route_perem:ActivatedRoute,
     private _electronService:ElectronService,private element:ElementRef,private strdate:DatePipe,
     private renderer:Renderer,private _hotkey:HotkeysService) {
@@ -30,6 +33,8 @@ export class HomeComponent implements OnInit {
 
       this._hotkey.add(new Hotkey(['f2'], (event: KeyboardEvent, combo: string): ExtendedKeyboardEvent => {
         console.log('Combo: ' + combo); // 'Combo: f2'
+        this.printKot();
+        this.prepareDataForHistory();
         let e: ExtendedKeyboardEvent = event;
         e.returnValue = false; // Prevent bubbling
         return e;
@@ -41,13 +46,14 @@ export class HomeComponent implements OnInit {
         e.returnValue = false; // Prevent bubbling
         return e;
       },['INPUT', 'SELECT', 'TEXTAREA']));
+      
     }
  
   form;
   order;
   initProduct = [];
   item_id:number;
-
+  keyword:string;
   /* =======================================DomElements================================================= */
   @ViewChild('table') tableER:ElementRef
   @ViewChild('itemFocus') itemINP:ElementRef
@@ -80,8 +86,8 @@ export class HomeComponent implements OnInit {
       price:new FormControl(""),
       total_price:new FormControl("")
     });    
-    this.prepareDataForDropDown();
-    
+    //this.prepareDataForDropDown();
+    console.log(NguiAutoCompleteComponent.prototype);
     this.route_perem.params.subscribe(params=>{
       this.getCurrentOrder(params.id);
       this.getTotalPriceAndQuantity(params.id);
@@ -95,7 +101,7 @@ export class HomeComponent implements OnInit {
     let code = e.keyCode || e.which;
     console.log(order);
     order.kot = 0;
-    order.total_kot = order.quantity;
+    //order.total_kot = order.quantity;
     if(!this.form.valid){
       return false;
     }
@@ -226,7 +232,7 @@ export class HomeComponent implements OnInit {
 
   changeFoTOPrice = function(e){
     let price = this.form.value.item.price;
-    console.log(this.form.value.item.id);
+   // console.log(this.form.value.item.id);
     let quantity = 1;
     let code = e.keyCode || e.which;
     if(code==13){
@@ -304,11 +310,37 @@ autocompleListFormatter = (data: any) : SafeHtml => {
   return this._sanitizer.bypassSecurityTrustHtml(html);
 }
 
-prepareDataForDropDown(){
+
+observableSource = (keyword: any): Observable<any[]> => {
+  if (keyword) {
+   return Observable.of(this.prepareDataForDropDown(keyword));
+  } else {
+    return Observable.of([]);
+  }
+}
+
+valueChanged = newVal=>{
+  console.log(newVal);
+  let price = newVal.price;
+   let quantity = 1;
+     this.form.get('item_id').setValue(newVal.id);
+     this.form.get('item').setValue(newVal.name);
+     this.form.get('quantity').setValue(quantity);
+     this.form.get('price').setValue(price);
+     this.form.get('total_price').setValue(price*quantity);  
+}
+
+changeFoToComment = (e)=>{
+  let code = e.keyCode || e.which;
+  if(code==13)
+  this.itemINP.nativeElement.parentNode.parentNode.nextElementSibling.children[0].focus();
+}
+
+prepareDataForDropDown(key){
   this.initProduct = [];
-  let data = this._electronService.ipcRenderer.sendSync('searchProduct',"kk");
+  let data = this._electronService.ipcRenderer.sendSync('searchProduct',key);
   data.forEach(element => {
-    this.item_id = element.id;
+  this.item_id = element.id;
   this.initProduct.push({
                   'id':element.id,
                   'sortname':element.sortname,
@@ -316,7 +348,9 @@ prepareDataForDropDown(){
                   'price':element.price
                   });
   });
+ return this.initProduct;
 }
+
 
 /* ===========================================OrderHistory And Print Related=============================== */
 history_data;
@@ -358,7 +392,4 @@ bypassKot(){
   let table_no = this.form.get('table_no').value;
   let id = this._electronService.ipcRenderer.sendSync('bypassKot',table_no);
 }
-
-
 }
-

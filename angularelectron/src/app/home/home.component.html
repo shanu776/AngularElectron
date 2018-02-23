@@ -40,10 +40,11 @@
 		<input type="hidden" name="item_id" formControlName="item_id">
 		<div class="input-div-large">
 			<input #itemFocus ngui-auto-complete
-					(keypress) = "changeFoTOPrice($event)"
+					(keypress) = "changeFoToComment($event)"
+					(valueChanged)="valueChanged($event)"
 					class="input" name="item" type="text"
 					formControlName="item"
-					[source]="initProduct"
+					[source]="observableSource.bind(this)"
 					[list-formatter]="autocompleListFormatter"
 					value-property-name="id"
 					display-property-name="name"

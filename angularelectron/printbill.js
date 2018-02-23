@@ -80,16 +80,30 @@ const ntprinter = require('node-thermal-printer')
 
 /* ===============================================Receipt and Printer Operation===========================  */
 
-  T_B_ON = new Buffer([0x1b, 0x45, 0x01]);
-  T_B_OFF = new Buffer([0x1b, 0x45, 0x00]);
-  T_2HEIGHT = new Buffer([0x1b, 0x21, 0x10]);
-  T_NORMAL = new Buffer([0x1b, 0x21, 0x00]);
-  function makeBold(input) {
-    return T_B_ON+input+T_NORMAL;
+T_B_ON = new Buffer([0x1b, 0x45, 0x01]);
+T_B_OFF = new Buffer([0x1b, 0x45, 0x00]);
+T_2HEIGHT = new Buffer([0x1b, 0x21, 0x10]);
+T_NORMAL = new Buffer([0x1b, 0x21, 0x00]);
+PAPER_FULL_CUT = new Buffer([0x1d, 0x56, 0x00]); // Full cut paper
+PAPER_PART_CUT = new Buffer([0x1d, 0x56, 0x01]); // Partial cut paper
+TXT_FONT_A = new Buffer([0x1b, 0x4d, 0x00]); // Font type A
+TXT_FONT_B = new Buffer([0x1b, 0x4d, 0x01]); // Font type B
+TXT_ALIGN_LT = new Buffer([0x1b, 0x61, 0x00]); // Left justification
+TXT_ALIGN_CT = new Buffer([0x1b, 0x61, 0x01]); // Centering
+TXT_ALIGN_RT = new Buffer([0x1b, 0x61, 0x02]); // Right justification
+CHARCODE_USA = new Buffer([0x1b, 0x52, 0x00]); // USA
+TXT_4SQUARE = new Buffer([0x1b, 0x21, 0x30]); // Quad area text
+BEEP = new Buffer([0x1b, 0x1e]);
+
+function Bold() {
+    return BEEP+T_B_ON+TXT_FONT_B+"";
+}
+function Normal() {
+    return T_B_OFF;
 }
 
 receipt.config.currency = '';
-receipt.config.width = 60;
+receipt.config.width = 45;
 receipt.config.ruler = '-';
 
 
@@ -109,10 +123,10 @@ function printBill(cal,items){
     });
     const output = receipt.create([
     { type: 'text', value: [
-        makeBold('Desi Chulhaa'),
-                '123 STORE ST',
-                'store@store.com',
-                'www.store.com'
+        Bold()+'    DesiChulhaa(Baner)'+Normal(),
+                'baner road, Balewadt Phata,Shrinath Complex',
+                '27BAVPK2884A1ZF',
+                '8087164638/8087164738'
     ], align: 'center' },
     { type: 'empty' },
     { type: 'properties', lines: [
@@ -132,7 +146,8 @@ function printBill(cal,items){
         { name: 'Amount Returned', value: 'AUD XX.XX' }
     ] },
     { type: 'empty' },
-    { type: 'text', value: 'Final bits of text at the very base of a docket. This text wraps around as well!', align: 'center', padding: 5 }
+    { type: 'text', value: 'Final bits of text at the very base of a docket. This text wraps around as well!', align: 'center', padding: 5 },
+    { type: 'text', value: ''+PAPER_PART_CUT}
 ]);
 
 Printer.printDirect({
@@ -147,7 +162,6 @@ Printer.printDirect({
         message = err;
     }
 });
-
     return message;
 }
 
@@ -158,35 +172,34 @@ ipcMain.on("printKot",function(event,table_no){
     .then(data=>{
         let kotdata = [];
         data.forEach((elem,key)=>{
-            console.log(elem);
             if(elem.kot == 0 && elem.total_kot<elem.quantity){
                 if(elem.comment == '' || elem.comment==null){
                     kotdata.push({no: key, item: elem.item, comment: '----', qty: (elem.quantity-elem.total_kot)});
                 }else{
-                kotdata.push({no: key, item: elem.item, comment: elem.comment, qty: (elem.quantity-elem.total_kot)});
+                    kotdata.push({no: key, item: elem.item, comment: elem.comment, qty: (elem.quantity-elem.total_kot)});
             }
                 updateKot(elem.id,1,elem.quantity);
             }
         });
         if(kotdata.length>0)
             event.returnValue = printKot(kotdata);
-            else
-                event.returnValue = "kot already generated";
+                else
+                    event.returnValue = "kot already generated";
     });
 });
 
 function printKot(kotdata){
     let message;
     const output = receipt.create([
+        {type:'text',value:Bold()},
+        {type: 'text',value:'KOT',padding:10,align:'center'},
         { type: 'text', value: [
-            makeBold('Desi Chulhaa'),
-                    '123 STORE ST',
-                    'store@store.com',
-                    'www.store.com'
+            Normal()+'   store@store.com'
         ], align: 'center' },
-        { type: 'customRuler' },
+        { type: 'customRuler'},
         { type: 'kot', lines: kotdata },
         { type: 'customRuler' },
+        { type: 'text',value: PAPER_PART_CUT+''}
     ]);
     
     Printer.printDirect({
@@ -201,7 +214,8 @@ function printKot(kotdata){
             message = err;
         }
     });
-    return message;
+    //console.log(output);
+   return message+"working";
 }
 
 function updateKot(id,kot,tkot){

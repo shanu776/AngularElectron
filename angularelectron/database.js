@@ -68,7 +68,6 @@ ipcMain.on("saveOrder",function(event,table_order){
     })
   });
 
-
   ipcMain.on("deleteCurrentTableOrder",function(event,id){
     knex('table_order').where('id',id).del()
     .on('query-error', function(error, obj){
@@ -110,7 +109,7 @@ ipcMain.on("saveOrder",function(event,table_order){
 
   
   ipcMain.on("searchProduct",function(event,keyword){
-    knex.from('product').select()
+    knex.from('product').select().where('sortname','Like',keyword+'%').limit(10)
     .on('query-error', function(error, obj){
       dialog.showMessageBox(error);
     })

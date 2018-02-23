@@ -1,7 +1,6 @@
 import { element } from 'protractor';
 import { DomSanitizer,SafeHtml } from '@angular/platform-browser'
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
-import { Ng2AutoCompleteComponent } from 'ng2-auto-complete';
 import { FormGroup, FormControl, FormBuilder, FormArray, Validators } from '@angular/forms';
 import { ElectronService } from 'ngx-electron'
 

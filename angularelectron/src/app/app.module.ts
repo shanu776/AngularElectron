@@ -3,7 +3,6 @@ import { NgModule } from '@angular/core';
 import { RouterModule } from "@angular/router";
 import { ReactiveFormsModule,FormsModule } from "@angular/forms";
 import { NgxElectronModule } from 'ngx-electron';
-import { Ng2AutoCompleteModule} from 'ng2-auto-complete'
 import { NguiAutoCompleteModule } from '@ngui/auto-complete'
 import { HotkeyModule } from 'angular2-hotkeys'
 import { TabModule } from 'angular-tabs-component'
@@ -14,6 +13,7 @@ import { ConfigurationComponent } from './configuration/configuration.component'
 import { FocusDirective, FocusNextDirective } from './focus.directive';
 import { ProductComponent } from './product/product.component';
 import { DatePipe } from '@angular/common';
+import { OrderhistoryComponent } from './orderhistory/orderhistory.component';
 
 
 @NgModule({
@@ -23,14 +23,14 @@ import { DatePipe } from '@angular/common';
     ConfigurationComponent,
     FocusDirective,
     FocusNextDirective,
-    ProductComponent
+    ProductComponent,
+    OrderhistoryComponent
   ],
   imports: [
     BrowserModule,
     ReactiveFormsModule,
     FormsModule,
     NgxElectronModule,
-    Ng2AutoCompleteModule,
     NguiAutoCompleteModule,
     TabModule,
     HotkeyModule.forRoot(),
@@ -38,7 +38,8 @@ import { DatePipe } from '@angular/common';
       {path:"",redirectTo:"/home/",pathMatch:"full"},
       { path:"home/:id",component:HomeComponent},
       { path:"configuration",component:ConfigurationComponent},
-      { path:"product",component:ProductComponent}
+      { path:"product",component:ProductComponent},
+      { path:"orderhistory",component:OrderhistoryComponent}
     ])
   ],
   providers: [DatePipe],
