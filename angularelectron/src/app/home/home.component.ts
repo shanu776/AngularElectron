@@ -9,6 +9,7 @@ import { DatePipe } from '@angular/common'
 import { Observable } from 'rxjs/Observable'
 import { NguiAutoCompleteComponent, NguiAutoComplete, NguiAutoCompleteDirective } from '@ngui/auto-complete';
 import 'rxjs/add/observable/of';
+import { ipcRenderer } from 'electron';
 
 
 @Component({
@@ -52,6 +53,7 @@ export class HomeComponent implements OnInit {
   form;
   order;
   initProduct = [];
+  initUserData = [];
   item_id:number;
   keyword:string;
   /* =======================================DomElements================================================= */
@@ -87,7 +89,6 @@ export class HomeComponent implements OnInit {
       total_price:new FormControl("")
     });    
     //this.prepareDataForDropDown();
-    console.log(NguiAutoCompleteComponent.prototype);
     this.route_perem.params.subscribe(params=>{
       this.getCurrentOrder(params.id);
       this.getTotalPriceAndQuantity(params.id);
@@ -200,14 +201,12 @@ export class HomeComponent implements OnInit {
 /* ========================================Events on type and table no=============================================== */
 
   dineInSelect = function(e){
-    console.log(this.form);
     this.enableTable();
     this.changeFoculeOnTable();
     this.formSetupForDineIn();
   }
 
   otherSelect = function(e){
-    console.log(this.form);
     this.focusOnDetails();
     this.disableTable();
     this.formSetupForOtherOrder();
@@ -217,6 +216,12 @@ export class HomeComponent implements OnInit {
     let code = e.keyCode || e.which;
     if(code==13)
     this.changeFoculeToDefault()
+  }
+
+  getRunningOrder = table=>{
+      this.getCurrentOrder(table);
+      this.getTotalPriceAndQuantity(table);
+    
   }
 
   gotoItems = function(e){
@@ -230,24 +235,7 @@ export class HomeComponent implements OnInit {
     this.form.get('total_price').setValue(price*quantity);
   }
 
-  changeFoTOPrice = function(e){
-    let price = this.form.value.item.price;
-   // console.log(this.form.value.item.id);
-    let quantity = 1;
-    let code = e.keyCode || e.which;
-    if(code==13){
-      this.form.get('item_id').setValue(this.form.value.item.id);
-      this.form.get('item').setValue(this.form.value.item.name);
-      this.form.get('comment').setValue(this.form.value.comment);
-      this.form.get('quantity').setValue(quantity);
-      this.form.get('price').setValue(price);
-      this.form.get('total_price').setValue(price*quantity);
-
-    this.itemINP.nativeElement.parentNode.parentNode.nextElementSibling.children[0].focus();
-  }
-  }
-
-
+  
 /* ===========================================Change Focus Acc to Type and Submition========================== */
   
    changeFoculeOnTable(){
@@ -262,7 +250,7 @@ export class HomeComponent implements OnInit {
    }
 
    focusOnDetails(){
-    this.tableER.nativeElement.parentNode.parentNode.nextElementSibling.children[0].children[0].focus();
+    this.tableER.nativeElement.parentNode.parentNode.nextElementSibling.children[0].children[0].children[0].focus();
    }
   
    changeFoculeToDefault(){
@@ -289,6 +277,10 @@ export class HomeComponent implements OnInit {
 formSetupForDineIn(){
   console.log(this.form);
   this.form.controls.table_no.status = "INVALID";
+  this.form.get('mobile').setValue("");
+  this.form.get('name').setValue("");
+  this.form.get('address').setValue("");
+  this.form.get('address2').setValue("");
 }
 
 formSetupForOtherOrder(){
@@ -303,7 +295,7 @@ formSetupForOtherOrder(){
 }
 
 
-/* ==========================================AutoComplete================================================== */
+/* ==========================================AutoComplete for Item============================================ */
 
 autocompleListFormatter = (data: any) : SafeHtml => {
   let html = `<span>${data.sortname +" "+ data.name}</span>`;
@@ -320,7 +312,6 @@ observableSource = (keyword: any): Observable<any[]> => {
 }
 
 valueChanged = newVal=>{
-  console.log(newVal);
   let price = newVal.price;
    let quantity = 1;
      this.form.get('item_id').setValue(newVal.id);
@@ -328,6 +319,7 @@ valueChanged = newVal=>{
      this.form.get('quantity').setValue(quantity);
      this.form.get('price').setValue(price);
      this.form.get('total_price').setValue(price*quantity);  
+
 }
 
 changeFoToComment = (e)=>{
@@ -350,7 +342,51 @@ prepareDataForDropDown(key){
   });
  return this.initProduct;
 }
+/* ==========================================AutoComplete for UserDetail=================================== */
 
+userDetailFormatter = (data: any) : SafeHtml => {
+  let html = `<span>${data.mobile +" "+ data.address}</span>`;
+  return this._sanitizer.bypassSecurityTrustHtml(html);
+}
+
+getUserDetails = (keyword: any): Observable<any[]> => {
+  if (keyword) {
+   return Observable.of(this.searchMobile(keyword));
+  } else {
+    return Observable.of([]);
+  }
+}
+
+changeFoToItem=(e)=>{
+  let code = e.keyCode || e.which;
+  if(code==13)
+  this.changeFoculeToDefault();
+}
+
+onSelectPhone = newVal=>{
+  let price = newVal.price;
+   let quantity = 1;
+     this.form.get('mobile').setValue(newVal.mobile);
+     this.form.get('name').setValue(newVal.name);
+     this.form.get('address').setValue(newVal.address);
+     this.form.get('address2').setValue(newVal.address2); 
+
+}
+
+searchMobile(key){
+  this.initUserData = [];
+  let data = this._electronService.ipcRenderer.sendSync('searchMobile',key);
+  data.forEach(elem => {
+    this.initUserData.push({
+      'id':elem.id,
+      'mobile':elem.mobile,
+      'name':elem.name,
+      'address':elem.address,
+      'address2':elem.address1
+    });
+  });
+  return this.initUserData;
+}
 
 /* ===========================================OrderHistory And Print Related=============================== */
 history_data;

@@ -7,6 +7,21 @@ var knex = require("knex")({
 	}
 });
 
+currentDate=()=>{
+  var today = new Date();
+  var dd = today.getDate();
+  var mm = today.getMonth()+1; //January is 0!
+
+  var yyyy = today.getFullYear();
+  if(dd<10){
+      dd='0'+dd;
+  } 
+  if(mm<10){
+      mm='0'+mm;
+  } 
+  return dd+'-'+mm+'-'+yyyy;
+}
+
 ipcMain.on("saveOrder",function(event,table_order){
     knex.from('table_order').select().where('table_no','=',table_order.table_no)
     .andWhere('item_id','=',table_order.item_id)
@@ -118,6 +133,12 @@ ipcMain.on("saveOrder",function(event,table_order){
     });
   });
 
+  ipcMain.on("searchMobile",(event,keyword)=>{
+    knex.from("user_detail").select().where('mobile','Like',keyword+'%').limit(10)
+    .on('query-error',(error,obj)=> dialog.showMessageBox(error))
+    .then((data)=>event.returnValue = data)
+  });
+
   ipcMain.on("totalPriceNdQuantity",function(event,table_no){
     knex('table_order').sum('quantity as tquantity').sum('total_price as gtprice').where('table_no', '=', table_no)
       .on('query-error', function(error, obj){
@@ -170,7 +191,7 @@ ipcMain.on("saveOrder",function(event,table_order){
 
   
   ipcMain.on("todaysOtherOrder",function(event,type){
-    knex.from('order_history').select().where('type','=',type)
+    knex.from('order_history').select().where('type','=',type).andWhere('date',currentDate())
     .then(function(data){
       event.returnValue = data;
     });
@@ -185,23 +206,9 @@ ipcMain.on("saveOrder",function(event,table_order){
       });
     });
   });
-  /* ===================================================Prepare JSON Object============================================ */
 
-/*   function prepareItemFk(el,id){
-    return item = {
-      'name':el.item,
-      'price':el.price,
-      'total_price':el.total_price,
-      'quantity':el.quantity,
-      'order_history_id':id
-    };
-  }
+/* ====================================================== Configuration ============================================== */
 
-  function prepareUserDetail(data){
-    return user = {
-      'name':data.name,
-      'address':data.address,
-      'address1':data.address2,
-      'mobile':data.mobile
-    };
-  } */
+ipcMain.on("setPrinter",(event,type,printer)=> knex('settings').where('id',1).update(type,printer).then(data=>event.returnValue = data));
+
+ipcMain.on("getSettings",(event,type,printer)=> knex.from("settings").select().then(data=>event.returnValue = data));

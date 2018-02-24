@@ -7,39 +7,25 @@ import { ElectronService } from 'ngx-electron';
   styleUrls: ['./configuration.component.css']
 })
 export class ConfigurationComponent implements OnInit {
-result=[];
-  constructor(private _electronService: ElectronService) { 
-     let data = this._electronService.ipcRenderer.sendSync('mainWindowLoaded');
-  //   this._electronService.ipcRenderer.on('resultSent',function(event,val){
-  //     setTimeout(function(){
-  //       console.log(val[0].FirstName);        
-  //     },10);
-  //  });
-  data.forEach(element => {
-    this.result.push({
-      FirstName:element.FirstName
-    });
-  });
-   console.log(this.result);
-  
+  constructor(private _electronService: ElectronService) {   
   }
+  public printers:string[]=[];
+  public kotPrinter:string;
+  public billPrinter:string;
 
   ngOnInit() {
-    console.log(this.result);
-  }
+  let getSettings = this._electronService.ipcRenderer.sendSync("getSettings");
+  this.kotPrinter = getSettings[0].printer_kot;
+  this.billPrinter = getSettings[0].printer_bill;
+
+  let printers = this._electronService.ipcRenderer.sendSync("getPrinters");
+  printers.forEach(elem => {
+    this.printers.push(elem.name);
+  });
   
-  rendererCheck = function(){
-    console.log(this.result);
-    //console.log('work');
-  //   this._electronService.ipcRenderer.send('mainWindowLoaded');
-  //   this._electronService.ipcRenderer.on('resultSent',function(result,val){
-  //     this.results = val;
-  //  });
   }
 
-
-}
-
-interface User{
-  FirstName:String;
+  setKotPrinter = (printer)=>console.log(this._electronService.ipcRenderer.sendSync("setPrinter","printer_kot",printer));
+  setBillPrinter = (printer)=>console.log(this._electronService.ipcRenderer.sendSync("setPrinter","printer_bill",printer));
+      
 }

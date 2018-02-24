@@ -18,11 +18,24 @@
 		<div class="input-div-medium">
 			<label>TableNo:</label>
 			<input #table type="text" name="table_no" class="input-adj" (keypress)="tableSelected($event)" formControlName="table_no">
+			<label (click)="getRunningOrder(form.value.table_no)">viewtable</label>
 		</div>
 	</div>
 	<div class="small-container">
 		<div class="input-div-medium">
-			<input appFocus type="text" name="mobile" class="input" placeholder="Mobile" formControlName="mobile">
+			<input ngui-auto-complete
+			 (keypress)="changeFoToItem($event)" 
+			 (valueChanged) = "onSelectPhone($event)"
+			 type="text" name="mobile" class="input"
+			 placeholder="Mobile" formControlName="mobile"
+			 [source]="getUserDetails.bind(this)"
+			 [list-formatter]="userDetailFormatter"
+			 value-property-name="id"
+			 display-property-name="name"
+			 max-num-list="10"
+			 placeholder="Mobile"		
+			 auto-select-first-item="true"
+			 >
 		</div>
 		<div class="input-div-medium">
 			<input appFocusNext type="text" name="name" class="input" placeholder="Name" formControlName="name">
@@ -41,7 +54,7 @@
 		<div class="input-div-large">
 			<input #itemFocus ngui-auto-complete
 					(keypress) = "changeFoToComment($event)"
-					(valueChanged)="valueChanged($event)"
+					(valueChanged) = "valueChanged($event)"
 					class="input" name="item" type="text"
 					formControlName="item"
 					[source]="observableSource.bind(this)"

@@ -1,6 +1,26 @@
-<p (click) = "rendererCheck()">
-  configuration works!
-</p>
-<ul>
-  <li *ngFor="let r of result">{{r.FirstName}}</li>
-</ul>
+<div class="top-div-container">
+  <div class="small-box-div">
+  <ul class="setting-ul">
+    <li>Printer's</li>
+    <li>Settings</li>
+  </ul>
+  </div>
+</div>
+<div class="middle-div-container">
+  <div class="printer">
+    <div class="input-div-medium">
+      <label>Kot Printer</label>
+      <select class="input" [(ngModel)]="kotPrinter" (change)="setKotPrinter(kotPrinter)">
+        <option selected disabled>SelectPrinter</option>
+        <option *ngFor="let p of printers" value="{{p}}">{{p}}</option>
+      </select>
+    </div>
+    <div class="input-div-medium">
+      <label>Bill Printer</label>
+      <select class="input" [(ngModel)]="billPrinter" (change)="setBillPrinter(billPrinter)">
+        <option selected disabled>SelectPrinter</option>
+        <option *ngFor="let p of printers" value="{{p}}">{{p}}</option>
+      </select>
+    </div>
+  </div>
+</div>

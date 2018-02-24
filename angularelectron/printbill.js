@@ -1,4 +1,3 @@
-
 const {app, BrowserWindow, Menu, ipcMain,dialog} = require('electron')
 const receipt = require('receipt');
 const Printer = require('electron-printer');
@@ -243,9 +242,14 @@ ipcMain.on("testPrinter",function(event){
     });
   });
 
+  ipcMain.on("getPrinters",event=>{
+      event.returnValue = Printer.getPrinters();
+  })
 
   
-/* ntprinter.init({
+
+
+  /* ntprinter.init({
     type: 'star',                                     // Printer type: 'star' or 'epson'
     interface: '/dev/usb/lp0',                        // Printer interface
     characterSet: 'SLOVENIA',                         // Printer character set
